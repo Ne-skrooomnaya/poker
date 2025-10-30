@@ -1,0 +1,78 @@
+/* client/src/components/AuthForm.css */
+.auth-form {
+  width: 300px;
+  text-align: center;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: rgba(39, 12, 213, 0.322); /* Полупрозрачный фон */
+    backdrop-filter: blur(10px); /* Размытие фона */
+    border-radius: 12px;
+        width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4),
+                inset 0 2px 4px rgba(255,255,255,0.1);
+    transition: box-shadow 0.3s ease; /* Добавляем плавный переход для тени */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Добавляем тонкую рамку для разделения */
+}
+
+.auth-form:hover {
+    box-shadow: 0 6px 12px rgba(0,0,0,0.5), /* Усиливаем тень при наведении */
+                inset 0 3px 6px rgba(255,255,255,0.2); /* Усиливаем блик при наведении */
+}
+
+
+.auth-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #fffafa; /* Even darker gray for heading */
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555; /* Slightly lighter gray for labels */
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd; /* Even lighter gray for input border */
+  border-radius: 3px;
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
+  font-size: 16px;
+  background-color: #fff; /* White input background */
+  color: #333; /* Dark gray input text */
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #aaa; /* Slightly darker gray on focus */
+}
+
+.submit-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #333; /* Dark gray button background */
+  color: #fff; /* White button text */
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s; /* Smooth background color transition */
+}
+
+.submit-button:hover {
+  background-color: #555; /* Slightly lighter gray on hover */
+}
+
+.submit-button:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Subtle shadow on focus */
+}

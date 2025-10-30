@@ -1,0 +1,69 @@
+<svg width="180" height="280" viewBox="10 82 240 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="neonGlow" x="-120%" y="-120%" width="340%" height="340%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="3.5" in="SourceAlpha" result="blur"/>
+      <feFlood flood-color="#00FFFF" flood-opacity="0.8" result="floodColor"/>
+      <feComposite in2="blur" operator="in" in="floodColor" result="composite"/>
+      <feMerge>
+        <feMergeNode in="composite"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <style>
+      @keyframes rotateVertical {
+        from {
+          transform: rotateX(0deg);
+        }
+        to {
+          transform: rotateX(360deg);
+        }
+      }
+
+      .chip {
+        animation: rotateVertical 8s linear infinite;
+        transform-origin: center; /* center = 0 0 в текущей системе координат */
+      }
+
+      .neon {
+        filter: url(#neonGlow);
+      }
+    </style>
+  </defs>
+
+  <g transform="translate(30 30)"> <!-- centering group -->
+    <g class="chip">
+      <g class="neon">
+        <!-- Основной круг -->
+        <path d="M0 72C0 111.75 32.25 144 72 144C111.75 144 144 111.75 144 72C144 32.25 111.75 0 72 0C32.25 0 0 32.25 0 72Z" stroke="#0077FF" stroke-width="7" stroke-linejoin="round"/>
+
+        <!-- Центральный неоновый круг -->
+        <path d="M36 72C36 91.875 52.125 108 72 108C91.875 108 108 91.875 108 72C108 52.125 91.875 36 72 36C52.125 36 36 52.125 36 72Z" stroke="#0077FF" stroke-width="4" stroke-linejoin="round" fill="none"/>
+
+        <!-- Палочки -->
+        <g id="stick_template">
+          <path d="M72 30 v -30" stroke="#0077FF" stroke-width="3.5" stroke-linejoin="round"/>
+        </g>
+
+        <!-- 12 палочек, 6 пар, с уменьшенным расстоянием -->
+        <use href="#stick_template" transform="rotate(0 72 72)" />
+        <use href="#stick_template" transform="rotate(15 72 72)" />
+
+        <use href="#stick_template" transform="rotate(60 72 72)" />
+        <use href="#stick_template" transform="rotate(75 72 72)" />
+
+        <use href="#stick_template" transform="rotate(120 72 72)" />
+        <use href="#stick_template" transform="rotate(135 72 72)" />
+
+        <use href="#stick_template" transform="rotate(180 72 72)" />
+        <use href="#stick_template" transform="rotate(195 72 72)" />
+
+        <use href="#stick_template" transform="rotate(240 72 72)" />
+        <use href="#stick_template" transform="rotate(255 72 72)" />
+
+        <use href="#stick_template" transform="rotate(300 72 72)" />
+        <use href="#stick_template" transform="rotate(315 72 72)" />
+      </g>
+    </g>
+  </g>
+</svg>
+

@@ -1,0 +1,258 @@
+    /* AdminRatingPage.css */
+
+.admin-rating-page {
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #0056b3;
+}
+
+.loading-indicator, .error-message {
+    text-align: center;
+    margin-top: 50px;
+    font-size: 1.2em;
+}
+
+.error-message {
+    color: red;
+}
+
+.date-editor-container {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Расстояние между элементами */
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    max-width: 400px; /* Ограничим ширину для лучшего вида */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.date-editor-container span {
+    font-weight: bold;
+    color: #555;
+}
+
+.current-date-display {
+    color: #007bff;
+    font-size: 1.1em;
+}
+
+.edit-date-button, .save-date-button {
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.edit-date-button:hover, .save-date-button:hover {
+    background-color: #0056b3;
+}
+
+.date-input-field {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    color: #333;
+}
+
+.add-player-button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+}
+
+.add-player-button:hover {
+    background-color: #218838;
+}
+
+.rating-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+}
+
+.rating-table th, .rating-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.rating-table th {
+    background-color: #e9ecef;
+    color: #495057;
+    font-weight: bold;
+}
+
+.rating-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.rating-table tbody tr:hover {
+    background-color: #e2e6ea;
+}
+
+.action-button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+    transition: background-color 0.2s ease;
+}
+
+.action-button.edit {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.action-button.edit:hover {
+    background-color: #e0a800;
+}
+
+.action-button.delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.action-button.delete:hover {
+    background-color: #c82333;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+    .container {
+
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: sans-serif;
+         box-sizing: border-box;
+                 text-align: center;
+
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .error-message {
+        color: red;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid red;
+        background-color: #ffe6e6;
+    }
+
+    .form-container {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    input[type="date"] {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    button {
+        padding: 10px 15px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+        
+    }
+
+    button:hover {
+        background-color: #3e8e41;
+    }
+
+    .bottom-section-button-d {
+        background: linear-gradient(135deg, rgb(20, 129, 255), rgba(62, 57, 93, 0.7));
+  color: #fff;
+    }
+
+    .polya {
+        width: 100%;
+        border-collapse: collapse;
+         box-sizing: border-box;
+    }
+
+    th,
+    td {
+        padding: 0px;
+        text-align: center;
+        border-bottom: 1px solid #ffffff;
+         box-sizing: border-box;
+    }
+
+    th {
+        background-color: #ffffff;
+        font-weight: bold;
+        color: black;
+    }
+
+      .date-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Пространство между элементами */
+  }
+  #dateDisplay {
+    font-weight: bold;
+  }
+  #dateInput {
+    display: none; /* Изначально скрыто */
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  button {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
