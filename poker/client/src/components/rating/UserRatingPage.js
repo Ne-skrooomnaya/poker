@@ -14,7 +14,8 @@ const UserRatingPage = () => {
   useEffect(() => {
     const fetchRatingData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/rating'); // Замени на URL своего API, если необходимо
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+            const response = await axios.get(`${apiUrl}/rating`); // Замени на URL своего API, если необходимо
         setRatingData(response.data);
         setLoading(false);
       } catch (error) {
