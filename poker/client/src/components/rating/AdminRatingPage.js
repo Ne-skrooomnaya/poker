@@ -23,7 +23,7 @@ const AdminRatingPage = () => {
     useEffect(() => {
         const fetchRatingData = async () => {
             try {
-                const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Дефолтное значение на всякий случай
+                const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api'; // Дефолтное значение на всякий случай
                 const response = await axios.get(`${apiUrl}/rating`); // Обращаемся к /rating
                 setRatingData(response.data);
                 setLoading(false);
@@ -36,7 +36,7 @@ const AdminRatingPage = () => {
 
         const fetchRegisteredUsers = async () => {
             try {
-                const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+                const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
             const response = await axios.get(`${apiUrl}/users/registered`);
                 setRegisteredUsers(response.data);
             } catch (error) {
@@ -85,7 +85,7 @@ const AdminRatingPage = () => {
         const confirmDelete = window.confirm('Вы уверены, что хотите удалить этого игрока?');
         if (confirmDelete) {
             try {
-                const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+                const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
             const response = await axios.delete(`${apiUrl}/rating/${telegramId}`); // Исправлена строка
                 setRatingData(ratingData.filter((player) => player.telegramId !== telegramId));
             } catch (error) {
