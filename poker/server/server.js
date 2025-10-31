@@ -29,10 +29,10 @@ app.use(cors({
 }));
 
 // --- API Routes (Важно: Эти маршруты должны быть ПЕРЕД обслуживанием статики) ---
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
-const ratingRoutes = require('./routes/rating');
-const adminRoutes = require('./routes/admin');
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
+const ratingRoutes = require('./routes/rating.routes');
+const adminRoutes = require('./routes/admin.routes');
 
 app.use('/auth', authRoutes); // Например, /auth/login
 app.use('/users', userRoutes); // Например, /users
