@@ -1,62 +1,60 @@
-    // server/server.js
+// server/server.js
 
-    const express = require('express');
-    const path = require('path'); // Убедитесь, что этот модуль импортирован
-    const bodyParser = require('body-parser');
-    const cors = require('cors');
-    const dotenv = require('dotenv');
-    const mongoose = require('mongoose');
-    const authRoutes = require('./routes/auth.routes');
-    const ratingRouter = require('./routes/rating.routes');
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const path = require('path');
+require('dotenv').config(); // Для загрузки переменных окружения
 
-    dotenv.config();
+const app = express();
 
-    const app = express();
-    const PORT = process.env.PORT || 5000; // Используем порт из переменных окружения
+// --- Переменные окружения ---
+const PORT = process.env.PORT || 5000;
+const mongoURI = process.env.MONGODB_URI;
 
-    app.use(cors({
-      origin: 'https://your-app-name.onrender.com', // Или '*' для всех, но в продакшене лучше ограничить
-      methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      credentials: true
-    }));
-    app.use(bodyParser.json());
+// --- Подключение к MongoDB ---
+mongoose.connect(mongoURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected successfully'))
+.catch(err => console.error('MongoDB connection error:', err));
 
-    const connectDB = async () => {
-      try {
-        await mongoose.connect(process.env.MONGODB_URI, {
-          useNewUrlParser: true,
-      useUnifiedTopology: true,
-          // Убраны устаревшие опции useNewUrlParser, useUnifiedTopology
-        });
-        console.log('Successfully connected to MongoDB');
-      } catch (error) {
-        console.error('Error connecting to MongoDB:', error.message);
-        process.exit(1);
-      }
-    };
+// --- Middleware ---
+app.use(express.json()); // Для парсинга JSON-запросов
+app.use(cors({
+  origin: process.env.CLIENT_URL || '*', // Укажите ваш домен на Render для продакшена
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 
-    // --- ОБНОВЛЕНИЕ ЗДЕСЬ: Используем 'build' вместо 'public' ---
-    // Create React App по умолчанию собирает фронтенд в папку 'build'.
-     // Убедитесь, что путь правильный. Если клиентская сборка в 'client/dist', то '../client/dist'
-    const frontendBuildPath = path.join(__dirname, '../client/build'); // Измените 'build' на 'dist' если используете
-    app.use(express.static(frontendBuildPath));
+// --- API Routes (Важно: Эти маршруты должны быть ПЕРЕД обслуживанием статики) ---
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const ratingRoutes = require('./routes/rating');
+const adminRoutes = require('./routes/admin');
 
-    // Отдаем index.html для всех остальных запросов, чтобы React Router работал
-    app.get('/*', (req, res) => { // Изменили '*' на '/*'
+app.use('/auth', authRoutes); // Например, /auth/login
+app.use('/users', userRoutes); // Например, /users
+app.use('/rating', ratingRoutes); // Например, /rating
+app.use('/admin', adminRoutes); // Например, /admin/update-rating
+
+// --- Обслуживание статических файлов фронтенда ---
+// Путь к папке 'build' вашего React-приложения
+// Предполагается, что 'server' и 'client' находятся в одной корневой папке 'poker'
+const frontendBuildPath = path.join(__dirname, '../client/build');
+
+// 1. Сначала отдаем статические файлы (CSS, JS, изображения и т.д.)
+app.use(express.static(frontendBuildPath));
+
+// 2. Затем, для всех остальных GET-запросов (которые не являются статическими файлами
+// и не являются API-маршрутами), отдаем index.html.
+// Это позволяет клиентскому роутеру (например, React Router) обрабатывать маршруты.
+app.get('*', (req, res) => { // Возвращаемся к '*' без ведущего слеша, но теперь это последний обработчик
   res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
 });
 
-    app.use('/auth', authRoutes);
-    app.use('/rating', ratingRouter);
-    // app.use('/users', userRouter); // Если у вас есть отдельный роутер для пользователей
-
-    app.get('/api/hello', (req, res) => {
-      res.send('Hello from the server!');
-    });
-
-    (async () => {
-      await connectDB();
-      app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-      });
-    })();
+// --- Запуск сервера ---
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
