@@ -42,9 +42,9 @@
     app.use(express.static(frontendBuildPath));
 
     // Отдаем index.html для всех остальных запросов, чтобы React Router работал
-    app.get('*', (req, res) => {
-      res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
-    });
+    app.get('/*', (req, res) => { // Изменили '*' на '/*'
+  res.sendFile(path.resolve(frontendBuildPath, 'index.html'));
+});
 
     app.use('/auth', authRoutes);
     app.use('/rating', ratingRouter);
