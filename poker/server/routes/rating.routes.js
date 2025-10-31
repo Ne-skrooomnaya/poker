@@ -1,82 +1,35 @@
+// server/routes/rating.js
 const express = require('express');
 const router = express.Router();
-const Rating = require('../models/rating.model');
+const Rating = require('../models/Rating');
+const User = require('../models/User');
+const mongoose = require('mongoose');
 
-// Получение всех записей рейтинга
+// GET /rating - Получить список рейтингов
 router.get('/', async (req, res) => {
   try {
-    const ratings = await Rating.find();
-    res.json(ratings);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+    // Получаем все записи рейтинга, сортируем по убыванию счета
+    const ratings = await Rating.find()
+      .populate('userId', 'username firstName lastName') // Присоединяем данные пользователя
+      .sort({ score: -1 })
+      .exec(); // exec() нужен после populate
 
-// Получение записи рейтинга по telegramId
-router.get('/:telegramId', async (req, res) => {
-  try {
-    const rating = await Rating.findOne({ telegramId: req.params.telegramId });
-    if (!rating) {
-      return res.status(404).json({ message: 'Cannot find rating' });
-    }
-    res.json(rating);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+    // Форматируем ответ, чтобы было удобнее отображать
+    const formattedRatings = ratings.map(rating => ({
+      _id: rating._id,
+      score: rating.score,
+      user: { // Объект user с нужными полями
+        _id: rating.userId._id,
+        username: rating.userId.username,
+        firstName: rating.userId.firstName,
+        lastName: rating.userId.lastName,
+      }
+    }));
 
-// Создание новой записи рейтинга
-router.post('/', async (req, res) => {
-  const { telegramId, points } = req.body;
-
-  // Проверка существования записи с данным telegramId
-  const existingRating = await Rating.findOne({ telegramId });
-  if (existingRating) {
-    return res.status(400).json({ message: 'Rating with this telegramId already exists' });
-  }
-
-  const rating = new Rating({
-    telegramId,
-    telegramUsername: req.body.telegramUsername,  // Оставить, как есть, если нужно.
-    points,
-  });
-
-  try {
-    const newRating = await rating.save();
-    res.status(201).json(newRating);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-// Обновление записи рейтинга
-router.patch('/:telegramId', async (req, res) => {
-  try {
-    const rating = await Rating.findOne({ telegramId: req.params.telegramId });
-    if (!rating) {
-      return res.status(404).json({ message: 'Cannot find rating' });
-    }
-    rating.points = req.body.points
-    const updatedRating = await rating.save();
-    res.json(updatedRating);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-// Удаление записи рейтинга
-router.delete('/:telegramId', async (req, res) => {
-  try {
-    const rating = await Rating.findOne({ telegramId: req.params.telegramId });
-    if (!rating) {
-      return res.status(404).json({ message: 'Cannot find rating' });
-    }
-
-    await Rating.deleteOne({ telegramId: req.params.telegramId }); // Use deleteOne instead of remove
-    res.json({ message: 'Deleted Rating' });
-  } catch (err) {
-    console.error("Ошибка при удалении:", err); // Выводим ошибку
-    res.status(500).json({ message: err.message });
+    res.json(formattedRatings);
+  } catch (error) {
+    console.error("Error fetching ratings:", error);
+    res.status(500).json({ message: 'Server error fetching ratings' });
   }
 });
 

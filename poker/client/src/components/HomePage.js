@@ -1,51 +1,51 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import './HomePage.css';
-import logo from './images/logo.svg'; // Импортируйте ваш логотип
-import chip from './images/chip.svg'; // Импортируйте изображение чипа
+// client/src/pages/HomePage.js
+import React, { useEffect } from 'react';
+import useTelegram from '../hooks/useTelegram';
+import { useNavigate } from 'react-router-dom'; // Для перенаправления
 
-const HomePage = ({ onLogout }) => {
+function HomePage() {
+  const { user, loading, telegramUser, loginUser } = useTelegram();
+  const navigate = useNavigate();
+
+  // Если пользователь уже авторизован (получены данные от бэкенда),
+  // перенаправляем его на другую страницу (например, рейтинг или главную страницу приложения)
+  useEffect(() => {
+    if (!loading && user) {
+      // Перенаправляем пользователя после успешного входа
+      // Например, на главную страницу приложения или страницу рейтинга
+      navigate('/rating'); // Или '/dashboard', '/app' и т.д.
+    } else if (!loading && telegramUser && !user) {
+      // Если данные Telegram есть, но бэкенд не вернул пользователя (ошибка логина)
+      // Можно показать сообщение об ошибке пользователю
+      console.log("Login failed, please try again.");
+      // Или можно просто оставить на этой странице, чтобы пользователь мог повторить вход
+    }
+  }, [loading, user, telegramUser, navigate, loginUser]);
+
+  const handleLogin = async () => {
+    if (telegramUser) {
+      // Вызываем функцию логина из useTelegram
+      await loginUser(telegramUser);
+      // Перенаправление произойдет в useEffect, когда user обновится
+    } else {
+      alert("Telegram user data not available. Please restart the app.");
+    }
+  };
+
+  // На главной странице входа отображаем только одну кнопку "Войти"
+  // Если пользователь еще не авторизован (loading === false и user === null)
   return (
-    <>
-      {/* Логотип */}
-      <div className="logo-container">
-        <img src={logo} alt="Poker Logo" />
-      </div>
-
-      {/* Верхний блок */}
-      <div className="top-section">
-        <div className="top-section-img">
-            <object data={chip} type="image/svg+xml"></object>
-        </div>
-        <div className="top-buttons">
-          <Link to="/rating" className="top-button">
-            <button className="top-button">Рейтинг</button>
-          </Link>
-          <Link to="/rating" className="top-button"><button className="top-button">Гонка месяца</button></Link>
-          <Link to="/rating" className="top-button"><button className="top-button">Прошедшие игры</button></Link>
-          
-          
-        </div>
-      </div>
-
-      {/* Нижний блок */}
-      <div className="bottom-section">
-        <Link to="/rating" className="t"><button className="bottom-section-button">Меню</button></Link>
-        <Link to="/rating" className="t"><button className="bottom-section-button">Чайная карта</button></Link>
-        <Link to="/rating" className="t"><button className="bottom-section-button">Паркур</button></Link>
-        <Link to="/rating" className="t"><button className="bottom-section-button">Карта бара</button></Link>
-        
-        
-        
-        
-      </div>
-
-      {/* Кнопка выхода */}
-      <button className="logout-button" onClick={onLogout}>
-        Выйти
-      </button>
-    </>
+    <div style={{ textAlign: 'center', padding: '20px' }}>
+      <h1>Добро пожаловать!</h1>
+      {!user && !loading && ( // Показываем кнопку, только если не загрузка и нет пользователя
+        <button onClick={handleLogin} style={{ padding: '15px 30px', fontSize: '18px' }}>
+          Войти
+        </button>
+      )}
+      {/* Можно добавить индикатор загрузки, если логин еще идет */}
+      {loading && <p>Загрузка...</p>}
+    </div>
   );
-};
+}
 
 export default HomePage;

@@ -1,63 +1,37 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-  telegramUsername: {
+  telegramId: {
     type: String,
     required: true,
     unique: true,
-    trim: true,
-    lowercase: true,
   },
-  password: {
+  username: {
     type: String,
-    required: true, // Password is now required
-  },
-  telegramId: {
-    type: Number,
-    unique: true,
-    sparse: true,
-  },
-  isAdmin: {
-    type: Boolean,
-    default: false,
+    trim: true,
   },
   firstName: {
     type: String,
+    required: true,
+    trim: true,
   },
   lastName: {
     type: String,
+    trim: true,
   },
-  salt: {  // Add salt field
+  photoUrl: {
     type: String,
-    required: true
-  }
+  },
+  role: { // Добавляем поле для роли: 'user' или 'admin'
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user',
+  },
+  // Можете добавить другие поля, например, для рейтинга, если не хотите отдельную модель
+  // ratingScore: { type: Number, default: 0 },
+  // rank: { type: Number }
+}, {
+  timestamps: true,
 });
 
-// Hash password before saving
-userSchema.pre('save', async function(next) {
-  if (this.isModified('password')) {
-    // STOP HASHING HERE!
-    try {
-      const salt = await bcrypt.genSalt(10);
-      this.salt = salt;
-      this.password = await bcrypt.hash(this.password, salt);
-    } catch (err) {
-      return next(err);
-    }
-  }
-  next();
-});
-
-
-// Method to compare passwords
-userSchema.methods.comparePassword = async function(candidatePassword) {
-  try {
-    return await bcrypt.compare(candidatePassword, this.password);
-  } catch (err) {
-    console.error("Error comparing passwords:", err);
-    return false;
-  }
-};
-
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema)

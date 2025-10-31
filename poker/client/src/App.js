@@ -1,118 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import AuthForm from './components/AuthForm';
-import HomePage from './components/HomePage';
-import AdminPage from './components/AdminPage';
-import RatingPage from './components/rating/RatingPage';
-import AdminRatingPage from './components/rating/AdminRatingPage';
-import UserRatingPage from './components/rating/UserRatingPage';
-import { getAuthToken } from './utils/auth';
-import './App.css';
+// client/src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import useTelegram from './hooks/useTelegram'; // Убедитесь, что путь правильный
+
+import HomePage from './components/HomePage'; // Ваша главная страница
+import RatingPage from './components/RatingPage'; // Ваша страница рейтинга
+import AdminPage from './components/AdminPage'; // Ваша страница админки
+import LoadingPage from './components/LoadingPage'; // Компонент для отображения загрузки
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [username, setUsername] = useState('');
-  const [isLocalDev, setIsLocalDev] = useState(true); // Flag для локальной разработки
+  const { user, loading, telegramUser } = useTelegram();
 
-  useEffect(() => {
-    if (!isLocalDev) {
-      const storedToken = getAuthToken();
-      if (storedToken) {
-        const storedUser = JSON.parse(localStorage.getItem('user'));
-        setIsLoggedIn(true);
-        setIsAdmin(storedUser?.isAdmin || false);
-        setUsername(storedUser?.username || '');
-      }
-    }
-  }, [isLocalDev]);
+  if (loading) {
+    return <LoadingPage />;
+  }
 
-  const handleLogin = (userData) => {
-    setIsLoggedIn(true);
-    setIsAdmin(userData.isAdmin);
-    setUsername(userData.username);
-    localStorage.setItem('user', JSON.stringify({ username: userData.username, isAdmin: userData.isAdmin }));
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setIsAdmin(false);
-    setUsername('');
-    localStorage.removeItem('user');
-  };
-
-  // Функции для переключения между админом и обычным пользователем в локалке
-  const handleAdminLogin = () => {
-    setIsLoggedIn(true);
-    setIsAdmin(true);
-    setUsername('admin');
-  };
-
-  const handleUserLogin = () => {
-    setIsLoggedIn(true);
-    setIsAdmin(false);
-    setUsername('testuser');
-  };
+  // Если пользователь не авторизован (нет данных от бэкенда), показываем главную страницу
+  // Если пользователь авторизован, перенаправляем на другую страницу
+  // или показываем контент в зависимости от его роли
 
   return (
     <Router>
-      <div className="App">
-        {/* Кнопки для переключения в локальной разработке */}
-        {isLocalDev && !isLoggedIn && (
-          <div>
-            <button className="but" onClick={handleAdminLogin}>Войти как админ</button>
-            <button className="but" onClick={handleUserLogin}>Войти как пользователь</button>
-          </div>
+      <Routes>
+        {/* Главная страница - вход */}
+        <Route path="/" element={<HomePage />} />
+
+        {/* Если пользователь авторизован, показываем остальные страницы */}
+        {/* Можно добавить проверку роли пользователя для доступа к админке */}
+        {user ? (
+          <>
+            <Route path="/rating" element={<RatingPage user={user} />} />
+            {/* Пример: только для админов */}
+            {user.role === 'admin' && (
+              <Route path="/admin" element={<AdminPage user={user} />} />
+            )}
+            {/* Можно добавить перенаправление после успешного логина */}
+            {/* <Route path="/" element={<HomePage />} /> */}
+          </>
+        ) : (
+          // Если пользователь не авторизован, но уже был перенаправлен с главной,
+          // можно показать сообщение или снова отправить на главную.
+          // Или если вы хотите, чтобы главная была всегда доступна для входа:
+          <Route path="/" element={<HomePage />} />
         )}
 
-        {isLoggedIn && (
-          <div className='your' >
-            Ваше имя: {isAdmin ? 'Вы админ' : username}
-          </div>
-        )}
-
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              isLoggedIn ? (
-                <Navigate to="/" replace />
-              ) : (
-                <AuthForm onLogin={handleLogin} />
-              )
-            }
-          />
-          <Route
-            path="/"
-            element={
-              isLoggedIn ? (
-                isAdmin ? (
-                  <AdminPage onLogout={handleLogout} />
-                ) : (
-                  <HomePage onLogout={handleLogout} />
-                )
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-
-          <Route
-            path="/rating"
-            element={
-              isLoggedIn ? (
-                isAdmin ? (
-                  <AdminRatingPage onLogout={handleLogout} />
-                ) : (
-                  <UserRatingPage onLogout={handleLogout} />
-                )
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-        </Routes>
-      </div>
+        {/* Можно добавить маршрут для страницы ошибки */}
+      </Routes>
     </Router>
   );
 }

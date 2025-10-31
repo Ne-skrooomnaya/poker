@@ -4,7 +4,6 @@ import './AdminPage.css';
 import { Link } from 'react-router-dom';
 import './HomePage.css';
 import logo from './images/logo.svg'; // Импортируйте ваш логотип
-import chip from './images/chip.svg'; // Импортируйте изображение чипа
 
 const AdminPage = ({ onLogout }) => {
   return (
