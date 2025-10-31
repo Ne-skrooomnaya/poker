@@ -1,8 +1,8 @@
 // server/routes/rating.js
 const express = require('express');
 const router = express.Router();
-const Rating = require('../models/Rating');
-const User = require('../models/User');
+const Rating = require('../models/rating.model');
+const User = require('../models/user.model');
 const mongoose = require('mongoose');
 
 // GET /rating - Получить список рейтингов

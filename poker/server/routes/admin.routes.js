@@ -1,8 +1,8 @@
 // server/routes/admin.js
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
-const Rating = require('../models/Rating');
+const User = require('../models/user.model');
+const Rating = require('../models/rating.model');
 // const authMiddleware = require('../middleware/authMiddleware'); // Если нужно
 
 // POST /admin/update-rating - Обновить рейтинг пользователя

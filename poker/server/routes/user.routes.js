@@ -1,7 +1,7 @@
 // server/routes/users.js
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const User = require('../models/user.model');
 // const authMiddleware = require('../middleware/authMiddleware'); // Если нужно защитить роут
 
 // GET /users - Получить список всех пользователей

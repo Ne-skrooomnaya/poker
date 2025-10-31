@@ -1,7 +1,7 @@
 // server/routes/auth.js
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User'); // Предполагается, что у вас есть модель User
+const User = require('../models/user.model'); // Предполагается, что у вас есть модель User
 
 // POST /auth/login
 // Принимает данные пользователя из Telegram и либо находит существующего,
