@@ -38,7 +38,7 @@
 
     app.use('/auth', authRoutes);
     app.use('/rating', ratingRouter);
-    app.use('/users', userRouter); // Если у вас есть отдельный роутер для пользователей
+    //app.use('/users', userRouter); // Если у вас есть отдельный роутер для пользователей
 
     app.get('/api/hello', (req, res) => {
       res.send('Hello from the server!');
