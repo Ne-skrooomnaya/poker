@@ -1,16 +1,12 @@
+// client/src/hooks/useTelegram.js
 import { useEffect, useState, useCallback } from "react";
-
-// Импортируем axios для отправки запросов на бэкенд
 import axios from 'axios';
 
-// Получаем Telegram Web App API
-const tg = window.Telegram.WebApp;
+// Получаем Telegram Web App API.
+// Важно: Эта переменная 'tg' будет undefined, если Telegram Web App API еще не загружен.
+let tg = window.Telegram ? window.Telegram.WebApp : undefined;
 
 // URL вашего бэкенда на Render
-// Важно: Убедитесь, что этот URL правильно настроен в переменных окружения на Render
-// и доступен для вашего клиентского приложения.
-// Например: process.env.REACT_APP_BACKEND_URL
-// Пока что используем заглушку, но в продакшене нужно будет установить реальный URL.
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'; // Замените или настройте через .env
 
 function useTelegram() {
@@ -18,23 +14,26 @@ function useTelegram() {
   const [loading, setLoading] = useState(true);
   const [telegramUser, setTelegramUser] = useState(null); // Для хранения данных из Telegram
 
-  const initTelegram = useCallback(() => {
-    try {
-      tg.ready(); // Сообщаем Telegram, что приложение готово
-      tg.expand(); // Расширяем мини-приложение на весь экран (опционально)
-
-      // Получаем данные пользователя из Telegram
-      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        setTelegramUser(tg.initDataUnsafe.user);
-      } else {
-        console.error("Telegram user data not available.");
-        // Возможно, стоит показать пользователю сообщение об ошибке или перенаправить
-      }
-    } catch (error) {
-      console.error("Error initializing Telegram Web App:", error);
-      // Обработка ошибок инициализации Telegram API
+  // Хук для инициализации Telegram Web App
+  useEffect(() => {
+    // Проверяем, доступен ли Telegram Web App API
+    if (!tg) {
+      console.error("Telegram Web App API is not available. Ensure it's loaded correctly.");
+      // Здесь можно показать пользователю сообщение об ошибке или перенаправить
+      return; // Прерываем выполнение, если API недоступен
     }
-  }, []);
+
+    tg.ready(); // Сообщаем Telegram, что приложение готово
+    tg.expand(); // Расширяем мини-приложение на весь экран (опционально)
+
+    // Получаем данные пользователя из Telegram, если они доступны
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      setTelegramUser(tg.initDataUnsafe.user);
+    } else {
+      console.error("Telegram user data not available.");
+      // Возможно, стоит показать пользователю сообщение об ошибке или перенаправить
+    }
+  }, []); // Пустой массив зависимостей означает, что этот эффект выполнится только один раз при монтировании.
 
   // Функция для авторизации пользователя на бэкенде
   const loginUser = useCallback(async (telegramUserData) => {
@@ -43,8 +42,13 @@ function useTelegram() {
       return;
     }
 
+    // Проверяем, доступен ли Telegram Web App API перед отправкой запроса
+    if (!tg) {
+      console.error("Telegram Web App API is not available for login.");
+      return;
+    }
+
     try {
-      // Отправляем данные пользователя на бэкенд для авторизации/регистрации
       const response = await axios.post(`${BACKEND_URL}/auth/login`, {
         telegramId: telegramUserData.id,
         username: telegramUserData.username,
@@ -53,28 +57,22 @@ function useTelegram() {
         photoUrl: telegramUserData.photo_url,
       });
 
-      // Предполагаем, что бэкенд возвращает данные пользователя после входа
-      setUser(response.data.user); // Сохраняем данные пользователя, полученные от бэкенда
+      setUser(response.data.user);
       setLoading(false);
       console.log("User logged in successfully:", response.data.user);
-
     } catch (error) {
       console.error("Error during user login:", error.response?.data || error.message);
-      // Обработка ошибок авторизации (например, показать сообщение пользователю)
       setLoading(false);
-      // Можно перенаправить на страницу ошибки или снова на главную
     }
-  }, []);
+  }, []); // Зависимости для useCallback
 
+  // Основной эффект для инициализации и авторизации
   useEffect(() => {
-    initTelegram();
-
-    // Если данные Telegram пользователя доступны сразу, пытаемся авторизоваться
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+    // Если tg доступен и данные пользователя есть, пытаемся авторизоваться
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
       loginUser(tg.initDataUnsafe.user);
-    } else {
-      // Если данных нет, установим таймер для ожидания.
-      // Это может быть полезно, если Telegram API загружается не мгновенно.
+    } else if (tg && !tg.initDataUnsafe) {
+      // Если API загрузился, но initDataUnsafe еще нет, ждем
       const intervalId = setInterval(() => {
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
           setTelegramUser(tg.initDataUnsafe.user);
@@ -82,53 +80,60 @@ function useTelegram() {
           clearInterval(intervalId);
         }
       }, 100);
-
       return () => clearInterval(intervalId);
+    } else if (!tg) {
+      // Если tg так и не стал доступен, мы уже вывели ошибку в первом useEffect
+      setLoading(false); // Завершаем загрузку, так как дальнейшая работа невозможна
     }
-  }, [initTelegram, loginUser]); // Зависимости для useCallback
+  }, [loginUser]); // Зависимость loginUser
 
   const onClose = useCallback(() => {
-    tg.close();
+    if (tg) {
+      tg.close();
+    }
   }, []);
 
-  // Эта функция может быть удалена, если MainButton не используется
-  // или перенесена туда, где она нужна
   const onToggleButton = useCallback(() => {
-    const showText = tg.isExpanded;
-    tg.MainButton.setParams({
-      text: showText ? "Скрыть кнопку" : "Показать кнопку",
-    });
-    tg.isExpanded = !tg.isExpanded;
+    if (tg) {
+      const showText = tg.isExpanded;
+      tg.MainButton.setParams({
+        text: showText ? "Скрыть кнопку" : "Показать кнопку",
+      });
+      tg.isExpanded = !tg.isExpanded;
+    }
   }, []);
 
-  // Функция для отправки данных на бэкенд (пример)
   const sendDataToBackend = useCallback(async (data) => {
     if (!user) {
       console.error("User not logged in, cannot send data.");
       return;
     }
+    if (!tg) {
+      console.error("Telegram Web App API is not available for sending data.");
+      return;
+    }
     try {
       const response = await axios.post(`${BACKEND_URL}/data/save`, {
-        userId: user._id, // Предполагается, что у пользователя есть _id из бэкенда
+        userId: user._id,
         data: data,
       });
       console.log("Data saved successfully:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error saving data to backend:", error.response?.data || error.message);
-      throw error; // Пробрасываем ошибку дальше
+      throw error;
     }
   }, [user]);
 
   return {
-    user, // Данные пользователя, полученные от бэкенда (после логина)
+    user,
     loading,
-    telegramUser, // Сырые данные из Telegram (для отладки или если нужны)
+    telegramUser,
     onClose,
     onToggleButton,
-    tg,
-    loginUser, // Экспортируем функцию логина, если нужна снаружи
-    sendDataToBackend, // Пример функции отправки данных
+    tg: tg || window.Telegram?.WebApp, // Возвращаем tg, но с fallback на случай, если он был undefined
+    loginUser,
+    sendDataToBackend,
   };
 }
 
