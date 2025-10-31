@@ -1,39 +1,38 @@
 // client/src/hooks/useTelegram.js
-import { useEffect, useState, useCallback } from "react";
-import axios from 'axios';
+ import { useEffect, useState, useCallback } from "react";
+    import axios from 'axios';
 
-// Получаем Telegram Web App API.
-// Важно: Эта переменная 'tg' будет undefined, если Telegram Web App API еще не загружен.
-let tg = window.Telegram ? window.Telegram.WebApp : undefined;
+    let tg = window.Telegram ? window.Telegram.WebApp : undefined;
 
-// URL вашего бэкенда на Render
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'; // Замените или настройте через .env
-
+    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 function useTelegram() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [telegramUser, setTelegramUser] = useState(null); // Для хранения данных из Telegram
 
   // Хук для инициализации Telegram Web App
-  useEffect(() => {
-    // Проверяем, доступен ли Telegram Web App API
-    if (!tg) {
-      console.error("Telegram Web App API is not available. Ensure it's loaded correctly.");
-      // Здесь можно показать пользователю сообщение об ошибке или перенаправить
-      return; // Прерываем выполнение, если API недоступен
-    }
+      useEffect(() => {
+        if (!tg) {
+          console.error("Telegram Web App API object (tg) is not initialized.");
+          setLoading(false);
+          return;
+        }
+        tg.ready();
+        tg.expand();
 
-    tg.ready(); // Сообщаем Telegram, что приложение готово
-    tg.expand(); // Расширяем мини-приложение на весь экран (опционально)
+        // --- ДОБАВЬТЕ ЭТИ ЛОГИ ---
+        console.log("tg.initData:", tg.initData); // Сырые данные
+        console.log("tg.initDataUnsafe:", tg.initDataUnsafe); // Распарсенный объект
+        console.log("tg.initDataUnsafe.user:", tg.initDataUnsafe.user); // Данные пользователя
+        // --- КОНЕЦ ЛОГОВ ---
 
-    // Получаем данные пользователя из Telegram, если они доступны
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      setTelegramUser(tg.initDataUnsafe.user);
-    } else {
-      console.error("Telegram user data not available.");
-      // Возможно, стоит показать пользователю сообщение об ошибке или перенаправить
-    }
-  }, []); // Пустой массив зависимостей означает, что этот эффект выполнится только один раз при монтировании.
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+          setTelegramUser(tg.initDataUnsafe.user);
+        } else {
+          console.error("Telegram user data not available. (From initial check)"); // Изменил сообщение, чтобы понимать, откуда оно
+        }
+      }, []); // Зависимости не нужны, выполняется один раз
+ // Пустой массив зависимостей означает, что этот эффект выполнится только один раз при монтировании.
 
   // Функция для авторизации пользователя на бэкенде
   const loginUser = useCallback(async (telegramUserData) => {
@@ -68,24 +67,30 @@ function useTelegram() {
 
   // Основной эффект для инициализации и авторизации
   useEffect(() => {
-    // Если tg доступен и данные пользователя есть, пытаемся авторизоваться
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      loginUser(tg.initDataUnsafe.user);
-    } else if (tg && !tg.initDataUnsafe) {
-      // Если API загрузился, но initDataUnsafe еще нет, ждем
-      const intervalId = setInterval(() => {
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-          setTelegramUser(tg.initDataUnsafe.user);
-          loginUser(tg.initDataUnsafe.user);
-          clearInterval(intervalId);
+        if (!tg) {
+          console.error("Telegram Web App API is not available when attempting login (second useEffect).");
+          setLoading(false);
+          return;
         }
-      }, 100);
-      return () => clearInterval(intervalId);
-    } else if (!tg) {
-      // Если tg так и не стал доступен, мы уже вывели ошибку в первом useEffect
-      setLoading(false); // Завершаем загрузку, так как дальнейшая работа невозможна
-    }
-  }, [loginUser]); // Зависимость loginUser
+
+        if (telegramUser) { // Если telegramUser уже установлен первым useEffect или interval
+            loginUser(telegramUser);
+        } else if (tg.initDataUnsafe && tg.initDataUnsafe.user) { // Если данные появились сейчас
+            setTelegramUser(tg.initDataUnsafe.user);
+            loginUser(tg.initDataUnsafe.user);
+        } else {
+            // Если данные не доступны сразу, ждем
+            const checkDataInterval = setInterval(() => {
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    setTelegramUser(tg.initDataUnsafe.user);
+                    loginUser(tg.initDataUnsafe.user);
+                    clearInterval(checkDataInterval);
+                }
+            }, 200);
+
+            return () => clearInterval(checkDataInterval);
+        }
+      }, [loginUser, telegramUser]); // Добавил telegramUser в зависимости
 
   const onClose = useCallback(() => {
     if (tg) {
