@@ -5,7 +5,7 @@ const User = require('../models/user.model');
 const Rating = require('../models/rating.model');
 const { authenticateUser, authorizeAdmin } = require('../middleware/authMiddleware'); // Импортируйте middleware
 // const authMiddleware = require('../middleware/authMiddleware'); // Если нужно
-
+const adminController = require('../controllers/admin.controller'); // Ваш контроллер для админки
 // POST /admin/update-rating - Обновить рейтинг пользователя
 // router.post('/update-rating', authMiddleware, async (req, res) => { // Защищаем роут
 router.post('/update-rating', async (req, res) => { // Пока без защиты
