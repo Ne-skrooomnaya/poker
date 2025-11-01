@@ -55,6 +55,7 @@ function useTelegram() {
         lastName: telegramUserData.last_name,
         photoUrl: telegramUserData.photo_url,
       });
+      console.log('Backend login response:', response.data);
 
       setUser(response.data.user);
       setLoading(false);

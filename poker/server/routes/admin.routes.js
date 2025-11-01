@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user.model');
 const Rating = require('../models/rating.model');
+const { authenticateUser, authorizeAdmin } = require('../middleware/authMiddleware'); // Импортируйте middleware
 // const authMiddleware = require('../middleware/authMiddleware'); // Если нужно
 
 // POST /admin/update-rating - Обновить рейтинг пользователя
@@ -46,6 +47,8 @@ router.post('/update-rating', async (req, res) => { // Пока без защи�
     res.status(500).json({ message: 'Server error updating rating' });
   }
 });
+
+router.get('/dashboard', authenticateUser, authorizeAdmin, adminController.getDashboard)
 
 // TODO: Добавить другие админские функции (например, управление пользователями, удаление и т.д.)
 
